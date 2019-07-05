@@ -38,7 +38,7 @@ An additional field `frontmatter` is added to all code MDAST nodes for later use
 
 Say we have the following Markdown file, `example.md`:
 
-````
+````markdown
 ```c
 ---
 wrap: c-main
@@ -124,6 +124,75 @@ unified()
   // Other plugins
   .use(html)
 ```
+
+### Use with [`remark-code-extra`](https://github.com/samlanning/remark-code-extra)
+
+You can access the markdown from within the transform function that you pass to the [options for that plugin](https://github.com/samlanning/remark-code-extra#optionstransform).
+
+For example, if you had the following markdown:
+
+````markdown
+```
+---
+before: Some header text
+---
+Code block with a header
+```
+
+```
+---
+after: Some footer text
+---
+Code block with a footer
+```
+
+```
+---
+before: Some header text
+after: Some footer text
+---
+Code block with a header and footer
+```
+
+```
+Code block with no header or footer
+```
+````
+
+And the following unified processor:
+
+```js
+// other imports
+const codeFrontmatter = require('remark-code-frontmatter');
+const codeExtra = require('remark-code-extra');
+
+const processor = remark()
+  .use(codeFrontmatter)
+  .use(codeExtra, {
+    transform: node => node.frontmatter.before || node.frontmatter.after ? {
+      before: node.frontmatter.before && [{
+        type: 'text',
+        value: node.frontmatter.before
+      }],
+      after: node.frontmatter.after && [{
+        type: 'text',
+        value: node.frontmatter.after
+      }]
+    } : null
+  })
+  .use(html);
+```
+
+Then this would output the following HTML:
+
+```html
+<div class="code-extra">Some header text<pre><code>Code block with a header</code></pre></div>
+<div class="code-extra"><pre><code>Code block with a footer</code></pre>Some footer text</div>
+<div class="code-extra">Some header text<pre><code>Code block with a header and footer</code></pre>Some footer text</div>
+<pre><code>Code block with no header or footer
+</code></pre>
+```
+
 
 ## API
 

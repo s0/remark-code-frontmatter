@@ -2636,6 +2636,13 @@ regex-not@^1.0.0, regex-not@^1.0.2:
     extend-shallow "^3.0.2"
     safe-regex "^1.1.0"
 
+remark-code-extra@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/remark-code-extra/-/remark-code-extra-1.0.0.tgz#d08635139f589bfd316f269f4f0dad38e42a53f9"
+  integrity sha512-f8dXcvE93j1W/S3SKEaeEWV14/5x5ffEXGekVU/sJZec0BACpdlIGZKqsCPR40vWQoGsluu1OjShM09LTVx4Bg==
+  dependencies:
+    unist-util-visit "^1.4.1"
+
 remark-html@^9.0.1:
   version "9.0.1"
   resolved "https://registry.yarnpkg.com/remark-html/-/remark-html-9.0.1.tgz#37c097396651a63d2f7d48d0168a554b3ec6b307"
@@ -3408,7 +3415,7 @@ unist-util-visit-parents@^2.0.0:
   dependencies:
     unist-util-is "^3.0.0"
 
-unist-util-visit@^1.0.0, unist-util-visit@^1.1.0:
+unist-util-visit@^1.0.0, unist-util-visit@^1.1.0, unist-util-visit@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/unist-util-visit/-/unist-util-visit-1.4.1.tgz#4724aaa8486e6ee6e26d7ff3c8685960d560b1e3"
   integrity sha512-AvGNk7Bb//EmJZyhtRUnNMEpId/AZ5Ph/KUpTI09WHQuDZHKovQ1oEv3mfmKpWKtoMzyMC4GLBm1Zy5k12fjIw==

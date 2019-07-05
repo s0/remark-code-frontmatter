@@ -4,6 +4,7 @@ import * as assert from 'assert';
 import * as remark from 'remark';
 import * as html from 'remark-html';
 import { promisify } from 'util';
+import * as codeExtra from 'remark-code-extra';
 
 import { MDASTCode } from 'remark-code-frontmatter/types';
 import * as codeFrontmatter from 'remark-code-frontmatter';
@@ -56,6 +57,42 @@ int main()
 </code></pre>
 <pre><code class="language-c">// Some other code
 </code></pre>`.trim();
+
+const TEST_EXTRA = `
+\`\`\`
+---
+before: Some header text
+---
+Code block with a header
+\`\`\`
+
+\`\`\`
+---
+after: Some footer text
+---
+Code block with a footer
+\`\`\`
+
+\`\`\`
+---
+before: Some header text
+after: Some footer text
+---
+Code block with a header and footer
+\`\`\`
+
+\`\`\`
+Code block with no header or footer
+\`\`\`
+`;
+
+const TEST_EXTRA_HMTL = `
+<div class="code-extra">Some header text<pre><code>Code block with a header</code></pre></div>
+<div class="code-extra"><pre><code>Code block with a footer</code></pre>Some footer text</div>
+<div class="code-extra">Some header text<pre><code>Code block with a header and footer</code></pre>Some footer text</div>
+<pre><code>Code block with no header or footer
+</code></pre>
+`.trim();
 
 const TEST_COMBINED = TEST_NONE + TEST_EMPTY + TEST_SOME;
 
@@ -122,5 +159,24 @@ describe('main tests', () => {
       .use(html);
     const output = await promisify(processor.process)(TEST_MODIFICATION);
     assert.equal(output.contents.trim(), TEST_MODIFICATION_HMTL);
+  });
+  it('Extra Test', async () => {
+    const processor = remark()
+      .use(codeFrontmatter)
+      .use(codeExtra, {
+        transform: (node: MDASTCode) => node.frontmatter.before || node.frontmatter.after ? {
+          before: node.frontmatter.before && [{
+            type: 'text',
+            value: node.frontmatter.before
+          }],
+          after: node.frontmatter.after && [{
+            type: 'text',
+            value: node.frontmatter.after
+          }]
+        } : null
+      })
+      .use(html);
+    const output = await promisify(processor.process)(TEST_EXTRA);
+    assert.equal(output.contents.trim(), TEST_EXTRA_HMTL);
   });
 });
