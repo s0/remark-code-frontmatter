@@ -1,0 +1,1 @@
+../../src/types/modules.d.ts
