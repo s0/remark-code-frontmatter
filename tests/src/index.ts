@@ -2,6 +2,7 @@ import { Transformer } from 'unified';
 import visit = require('unist-util-visit');
 import * as assert from 'assert';
 import * as remark from 'remark';
+import * as html from 'remark-html';
 import { promisify } from 'util';
 
 import { MDASTCode } from 'remark-code-frontmatter/types';
@@ -31,6 +32,31 @@ some code with data
 \`\`\`
 `;
 
+const TEST_MODIFICATION = `
+\`\`\`c
+---
+wrap: c-main
+---
+printf("Hello, World!");
+return 0;
+\`\`\`
+
+\`\`\`c
+// Some other code
+\`\`\`
+`;
+
+const TEST_MODIFICATION_HMTL = `
+<pre><code class="language-c">#include&#x3C;stdio.h>
+int main()
+{
+  printf("Hello, World!");
+  return 0;
+}
+</code></pre>
+<pre><code class="language-c">// Some other code
+</code></pre>`.trim();
+
 const TEST_COMBINED = TEST_NONE + TEST_EMPTY + TEST_SOME;
 
 function test(name: string, markdown: string, tests: (nodes: MDASTCode[]) => void) {
@@ -51,7 +77,7 @@ function test(name: string, markdown: string, tests: (nodes: MDASTCode[]) => voi
 describe('main tests', () => {
   test('No frontmatter', TEST_NONE, nodes => {
     assert.equal(nodes.length, 1);
-    assert.strictEqual(nodes[0].frontmatter, undefined);
+    assert.deepEqual(nodes[0].frontmatter, {});
     assert.strictEqual(nodes[0].value, 'some code without frontmatter');
   });
   test('Empty frontmatter', TEST_EMPTY, nodes => {
@@ -66,11 +92,35 @@ describe('main tests', () => {
   });
   test('Combined', TEST_COMBINED, nodes => {
     assert.equal(nodes.length, 3);
-    assert.strictEqual(nodes[0].frontmatter, undefined);
+    assert.deepEqual(nodes[0].frontmatter, {});
     assert.strictEqual(nodes[0].value, 'some code without frontmatter');
     assert.deepEqual(nodes[1].frontmatter, {});
     assert.strictEqual(nodes[1].value, 'some code with empty');
     assert.deepEqual(nodes[2].frontmatter, { foo: 'bar', baz: [1, 2, 3] });
     assert.strictEqual(nodes[2].value, 'some code with data');
+  });
+  it('Modification Test', async () => {
+    const transformer: Transformer = tree => {
+      visit<MDASTCode>(tree, 'code', node => {
+        if (node.frontmatter.wrap === 'c-main') {
+          node.value = [
+            '#include<stdio.h>',
+            'int main()',
+            '{',
+            // indent
+            ...node.value.split('\n').map((line: string) => '  ' + line),
+            `}`,
+          ].join('\n');
+        }
+      });
+      return tree;
+    };
+
+    const processor = remark()
+      .use(codeFrontmatter)
+      .use(() => transformer)
+      .use(html);
+    const output = await promisify(processor.process)(TEST_MODIFICATION);
+    assert.equal(output.contents.trim(), TEST_MODIFICATION_HMTL);
   });
 });

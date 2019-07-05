@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "mocha": "^6.1.4",
-    "remark": "^10.0.1"
+    "remark": "^10.0.1",
+    "remark-html": "^9.0.1"
   }
 }

@@ -10,11 +10,9 @@ const attacher: Attacher = () =>  {
   const transformer: Transformer = (tree, _file) => {
 
     visit<MDASTCode>(tree, 'code', node => {
-      if (frontmatter.test(node.value)) {
-        const fm = frontmatter(node.value);
-        node.frontmatter = fm.attributes;
-        node.value = fm.body;
-      }
+      const fm = frontmatter(node.value);
+      node.frontmatter = fm.attributes;
+      node.value = fm.body;
     });
 
     return tree;
