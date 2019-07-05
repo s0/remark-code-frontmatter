@@ -1,6 +1,6 @@
 {
   "name": "remark-code-frontmatter",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Extract frontmatter from markdown code blocks using remark, and do interesting things!",
   "keywords": [
     "remark-plugin",
