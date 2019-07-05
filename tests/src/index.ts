@@ -31,6 +31,8 @@ some code with data
 \`\`\`
 `;
 
+const TEST_COMBINED = TEST_NONE + TEST_EMPTY + TEST_SOME;
+
 function test(name: string, markdown: string, tests: (nodes: MDASTCode[]) => void) {
   it(name, async () => {
     const nodes: MDASTCode[] = [];
@@ -61,5 +63,14 @@ describe('main tests', () => {
     assert.equal(nodes.length, 1);
     assert.deepEqual(nodes[0].frontmatter, { foo: 'bar', baz: [1, 2, 3] });
     assert.strictEqual(nodes[0].value, 'some code with data');
+  });
+  test('Combined', TEST_COMBINED, nodes => {
+    assert.equal(nodes.length, 3);
+    assert.strictEqual(nodes[0].frontmatter, undefined);
+    assert.strictEqual(nodes[0].value, 'some code without frontmatter');
+    assert.deepEqual(nodes[1].frontmatter, {});
+    assert.strictEqual(nodes[1].value, 'some code with empty');
+    assert.deepEqual(nodes[2].frontmatter, { foo: 'bar', baz: [1, 2, 3] });
+    assert.strictEqual(nodes[2].value, 'some code with data');
   });
 });
